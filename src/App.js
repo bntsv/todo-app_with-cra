@@ -17,25 +17,25 @@ import TodosCount from './components/TodosCount';
 // }
 
 class App extends React.Component {
-  constructor(){
+  constructor() {
     super()
     const currentSessionStorage = window.sessionStorage.getItem("todos");
     this.state = {
       todos: JSON.parse(currentSessionStorage) || [
         {
-            id: 1,
-            title: "Todo1",
-            completed: false
+          id: 1,
+          title: "Todo1",
+          completed: false
         },
         {
-            id: 2,
-            title: "Todo2",
-            completed: false
+          id: 2,
+          title: "Todo2",
+          completed: false
         },
         {
-            id: 3,
-            title: "Todo3",
-            completed: false
+          id: 3,
+          title: "Todo3",
+          completed: false
         }
       ],
       pendingTodo: {
@@ -44,33 +44,37 @@ class App extends React.Component {
     }
 
   }
-  
-  componentDidUpdate(prevProps,prevState){
-    window.sessionStorage.setItem("todos",JSON.stringify(this.state.todos));
+
+  componentDidUpdate(prevProps, prevState) {
+    window.sessionStorage.setItem("todos", JSON.stringify(this.state.todos));
   }
 
   handleChange = (e) => {
 
     const newTodoTitle = e.target.value;
-    const newTodoID = this.state.todos[(this.state.todos.length)-1].id;
+
+    const currentLastTodoID = this.state.todos[(this.state.todos.length) - 1].id;
     const newTodo = {
-        id: newTodoID+1,
-        title: newTodoTitle,
-        completed: false
+      id: currentLastTodoID + 1,
+      title: newTodoTitle,
+      completed: false
     };
 
     this.setState((state) => {
       return { pendingTodo: newTodo }
     });
-    
+
   }
 
   addTodo = (e) => {
     e.preventDefault();
 
-    this.setState((state) => {
-      return { todos: [...state.todos, state.pendingTodo], pendingTodo: {title: ""} }
-    });
+    if (this.state.pendingTodo.title !== "") {
+      this.setState((state) => {
+        return { todos: [...state.todos, state.pendingTodo], pendingTodo: { title: "" } }
+      });
+    }
+
   }
 
   removeTodo = (index) => {
@@ -79,22 +83,22 @@ class App extends React.Component {
       return (this.state.todos.indexOf(todo) !== index)
     });
 
-    this.setState({ 
+    this.setState({
       todos: newState
     });
   }
 
   toggleCompleted = (index) => {
-    
-    const newState = this.state.todos.map((todo,i)=> {
-      if(i==index){
+
+    const newState = this.state.todos.map((todo, i) => {
+      if (i == index) {
         todo.completed = !todo.completed;
-      } 
+      }
       return todo
     })
 
-    
-    this.setState({ 
+
+    this.setState({
       todos: newState
     })
 
@@ -106,16 +110,16 @@ class App extends React.Component {
       <div className="page">
         <Header />
         <main className="todoApp">
-          <AddTodo 
-          todosArr = {this.state.todos}
-          pendingTodo = {this.state.pendingTodo} 
-          newTodo = {this.handleChange} 
-          addTodo = {this.addTodo}/>
-          <TodoList 
-          todosArr = {this.state.todos} 
-          removeTodo = {this.removeTodo} 
-          toggleCompleted = {this.toggleCompleted}/>
-          <TodosCount todosLength = {this.state.todos.length}/>
+          <AddTodo
+            todosArr={this.state.todos}
+            pendingTodo={this.state.pendingTodo}
+            newTodo={this.handleChange}
+            addTodo={this.addTodo} />
+          <TodoList
+            todosArr={this.state.todos}
+            removeTodo={this.removeTodo}
+            toggleCompleted={this.toggleCompleted} />
+          <TodosCount todosLength={this.state.todos.length} />
         </main>
       </div>
     );
