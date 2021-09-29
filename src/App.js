@@ -17,32 +17,29 @@ import TodosCount from './components/TodosCount';
 // }
 
 class App extends React.Component {
-  constructor() {
-    super()
+  constructor(props) {
+    super(props)
+
     const currentSessionStorage = window.sessionStorage.getItem("todos");
     this.state = {
-      todos: JSON.parse(currentSessionStorage) || [
-        {
-          id: 1,
-          title: "Todo1",
-          completed: false
-        },
-        {
-          id: 2,
-          title: "Todo2",
-          completed: false
-        },
-        {
-          id: 3,
-          title: "Todo3",
-          completed: false
-        }
-      ],
+      todos: JSON.parse(currentSessionStorage) || [],
       pendingTodo: {
         title: ""
       }
     }
 
+  }
+
+  componentDidMount() {
+
+    fetch(`${this.props.apiRoot}/todos`)
+      .then(res => res.json())
+      .then(data => {
+        this.setState(() => {
+          return { todos: [...data] }
+        })
+      })
+      .catch(err => console.error(err));
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -68,24 +65,55 @@ class App extends React.Component {
 
   addTodo = (e) => {
     e.preventDefault();
+    let pendingTodo = this.state.pendingTodo;
 
     if (this.state.pendingTodo.title !== "") {
-      this.setState((state) => {
-        return { todos: [...state.todos, state.pendingTodo], pendingTodo: { title: "" } }
-      });
+
+      // //change local state:
+      // this.setState((state) => {
+      //   return { todos: [...state.todos, pendingTodo], pendingTodo: { title: "" } }
+      // });
+
+      //change server(db) state:
+      fetch(`${this.props.apiRoot}/todos`, {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(pendingTodo)
+      })
+        .then((response) => response.json())
+        .then(() => {
+          //change local state:
+          this.setState((state) => {
+            return { todos: [...state.todos, pendingTodo], pendingTodo: { title: "" } }
+          });
+
+        })
+        .catch(err => console.error(err))
     }
 
   }
 
   removeTodo = (index) => {
 
-    const newState = this.state.todos.filter(todo => {
-      return (this.state.todos.indexOf(todo) !== index)
-    });
+    let todoID = this.state.todos[index].id;
+    //change server(db) state:
+    fetch(`${this.props.apiRoot}/todos/${todoID}`, { method: "DELETE" })
+      .then((response) => {
+        if (response.status === 200) {
 
-    this.setState({
-      todos: newState
-    });
+          //change local state:
+          const newState = this.state.todos.filter(todo => {
+            return (this.state.todos.indexOf(todo) !== index)
+          });
+
+          this.setState({
+            todos: newState
+          });
+        }
+      })
+      .catch(err => console.error(err))
   }
 
   toggleCompleted = (index) => {
@@ -97,12 +125,27 @@ class App extends React.Component {
       return todo
     })
 
+    const todoID = this.state.todos[index].id;
+    const changedTodo = newState[index];
 
-    this.setState({
-      todos: newState
+    //change server(db) state:
+    fetch(`${this.props.apiRoot}/todos/${todoID}`, {
+      method: "PUT",
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(changedTodo)
     })
+      .then((response) => {
+        if (response.status === 200) {
 
-    console.log("toggle changed");
+          //change local state:
+          this.setState({
+            todos: newState
+          })
+        }
+      })
+      .catch(err => console.error(err))
   }
 
   render() {
