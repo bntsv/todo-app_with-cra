@@ -1,9 +1,9 @@
 import React from 'react';
 
-function TodosCount() {
+function TodosCount(props) {
   return (
     <div>
-      TodosCount
+      {props.todosLength}
     </div>
   );
 }

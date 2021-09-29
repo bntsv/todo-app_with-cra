@@ -17,14 +17,100 @@ import TodosCount from './components/TodosCount';
 // }
 
 class App extends React.Component {
+  constructor(){
+    super()
+    
+    this.state = {
+      todos: [
+        {
+            id: 1,
+            title: "Todo1",
+            completed: false
+        },
+        {
+            id: 2,
+            title: "Todo2",
+            completed: false
+        },
+        {
+            id: 3,
+            title: "Todo3",
+            completed: false
+        }
+      ],
+      pendingTodo: {
+        title: ""
+      }
+    }
+
+  }
+  
+  handleChange = (e) => {
+    const newTodoTitle = e.target.value;
+    const newTodoID = this.state.todos[(this.state.todos.length)].id*1;
+    const newTodo = {
+        id: newTodoID,
+        title: newTodoTitle,
+        completed: false
+    };
+
+    this.setState((state) => {
+      return { pendingTodo: newTodo }
+    });
+    
+  }
+
+  addTodo = (e) => {
+    e.preventDefault();
+
+    this.setState((state) => {
+      return { todos: [...state.todos, state.pendingTodo], pendingTodo: {title: ""} }
+    });
+  }
+
+  removeTodo = (index) => {
+
+    const newState = this.state.todos.filter(todo => {
+      return (this.state.todos.indexOf(todo) !== index)
+    });
+
+    this.setState({ 
+      todos: newState
+    });
+  }
+
+  toggleCompleted = (index) => {
+    
+    const newState = this.state.todos.map((todo,i)=> {
+      if(i==index){
+        todo.completed = !todo.completed;
+      } 
+      return todo
+    })
+
+    
+    this.setState({ 
+      todos: newState
+    })
+
+    console.log("toggle changed");
+  }
+
   render() {
     return (
       <div className="page">
         <Header />
         <main className="todoApp">
-          <AddTodo />
-          <TodoList />
-          <TodosCount />
+          <AddTodo 
+          todosArr = {this.state.todos}
+          pendingTodo = {this.state.pendingTodo} 
+          newTodo = {this.handleChange} 
+          addTodo = {this.addTodo}/>
+          <TodoList 
+          todosArr = {this.state.todos} 
+          removeTodo = {this.removeTodo} 
+          toggleCompleted = {this.toggleCompleted}/>
+          <TodosCount todosLength = {this.state.todos.length}/>
         </main>
       </div>
     );
