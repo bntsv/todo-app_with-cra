@@ -45,11 +45,16 @@ class App extends React.Component {
 
   }
   
+  // componentDidUpdate(prevProps,prevState){
+  //   window.sessionStorage.setItem("todos",JSON.stringify(this.state.todos));
+  // }
+
   handleChange = (e) => {
     const newTodoTitle = e.target.value;
-    const newTodoID = this.state.todos[(this.state.todos.length)].id*1;
+    console.log(newTodoTitle);
+    const newTodoID = this.state.todos[(this.state.todos.length)-1].id;
     const newTodo = {
-        id: newTodoID,
+        id: newTodoID+1,
         title: newTodoTitle,
         completed: false
     };
