@@ -19,9 +19,9 @@ import TodosCount from './components/TodosCount';
 class App extends React.Component {
   constructor(){
     super()
-    
+    const currentSessionStorage = window.sessionStorage.getItem("todos");
     this.state = {
-      todos: [
+      todos: JSON.parse(currentSessionStorage) || [
         {
             id: 1,
             title: "Todo1",
@@ -45,13 +45,13 @@ class App extends React.Component {
 
   }
   
-  // componentDidUpdate(prevProps,prevState){
-  //   window.sessionStorage.setItem("todos",JSON.stringify(this.state.todos));
-  // }
+  componentDidUpdate(prevProps,prevState){
+    window.sessionStorage.setItem("todos",JSON.stringify(this.state.todos));
+  }
 
   handleChange = (e) => {
+
     const newTodoTitle = e.target.value;
-    console.log(newTodoTitle);
     const newTodoID = this.state.todos[(this.state.todos.length)-1].id;
     const newTodo = {
         id: newTodoID+1,
