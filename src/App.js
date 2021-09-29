@@ -119,7 +119,7 @@ class App extends React.Component {
   toggleCompleted = (index) => {
 
     const newState = this.state.todos.map((todo, i) => {
-      if (i == index) {
+      if (i === index) {
         todo.completed = !todo.completed;
       }
       return todo
